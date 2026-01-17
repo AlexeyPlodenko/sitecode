@@ -19,7 +19,7 @@ class PageCacheMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // we cache only GET method responses coming from the website domain
-        if (!$request->isMethod('GET') || $request->host() !== config('app.host')) {
+        if (!$request->isMethod('GET') || $request->host() !== appHost()) {
             return $next($request);
         }
 
@@ -42,7 +42,7 @@ class PageCacheMiddleware
 //            header('Expires: 0');
 //            header('Cache-Control: must-revalidate');
 //            header('Pragma: public');
-            header('X-Cache: HIT');
+            header('X-Sitecode-Cache: PHP');
 
             $size = filesize($filePath);
             header("Content-Length: $size");
@@ -57,7 +57,7 @@ class PageCacheMiddleware
         // cache successful responses
         if ($response->isSuccessful()) {
             // ensure the directories exist
-            @mkdir(dirname($filePath), 0777, true);
+            @mkdir(dirname($filePath), 0755, true);
 
             // write cached data
             file_put_contents($filePath, $response->getContent());

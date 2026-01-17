@@ -12,7 +12,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 //Route::get('/catalogue/{category}', [CategoryController::class, 'index']);
 //Route::get('/catalogue/{category}/{product}', [ProductController::class, 'index']);
 
-$appHost = parse_url(config('app.url'), PHP_URL_HOST);
+$appHost = appHost();
 
 Route::get('{any}', function () {
 //    $page = Page::query()->select(['content', 'view'])->where('url', '/')->first();

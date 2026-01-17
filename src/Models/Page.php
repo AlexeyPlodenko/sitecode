@@ -240,7 +240,7 @@ class Page extends Model
         // capture the original request to restore it later
         $originalRequest = request();
 
-        $appHost = config('app.host');
+        $appHost = appHost();
         $subRequest = Request::create($this->url, server: [
             'HTTP_HOST' => $appHost,
             'SERVER_NAME' => $appHost,

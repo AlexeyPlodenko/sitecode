@@ -1,0 +1,31 @@
+### Sitecode start
+# Map the public URL path to the private storage path
+location /sitecode_static_cache/ {
+    # This prevents the browser from ever accessing this folder directly
+    internal;
+    alias %PUBLIC_DIR_PATH%/sitecode_static_cache/;
+}
+
+# Updated logic for the main location block
+location / {
+    set $cache_path "%PUBLIC_DIR_PATH%/sitecode_static_cache$uri/index.html";
+
+    set $serve_from_cache "";
+    if ($request_method ~ ^(GET|HEAD)$) {
+        set $serve_from_cache "A";
+    }
+
+    # Check if the file exists on the actual disk path
+    if (-f $cache_path) {
+        set $serve_from_cache "${serve_from_cache}B";
+    }
+
+    if ($serve_from_cache = "AB") {
+        add_header X-Sitecode-Cache "WEBSERVER" always;
+        # Rewrite to the path Nginx understands
+        rewrite ^ /sitecode_static_cache$uri/index.html break;
+    }
+
+    try_files $uri /index.php?$query_string;
+}
+### Sitecode end

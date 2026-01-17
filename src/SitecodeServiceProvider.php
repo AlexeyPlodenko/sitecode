@@ -2,6 +2,9 @@
 
 namespace Alexeyplodenko\Sitecode;
 
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnApacheCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnNginxCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCommand;
 use Alexeyplodenko\Sitecode\Services\CachedDecorator;
 use Alexeyplodenko\Sitecode\Services\CallSignatureBuilder;
 use Alexeyplodenko\Sitecode\Services\DataSerializers\PrintRDataSerializer;
@@ -40,6 +43,14 @@ class SitecodeServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sitecode');
+        
+        $this->commands([
+            InstallCommand::class,
+            InstallOnApacheCommand::class,
+            InstallOnNginxCommand::class,
+        ]);
         
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -52,14 +63,7 @@ class SitecodeServiceProvider extends ServiceProvider
         }
 
         Filament::serving(function () {
-            // This tells Filament to look for resources in your package
+            // 
         });
-    }
-
-    public function packageBooted(): void
-    {
-        Filament::registerResources([
-            \YourNamespace\PackageName\Resources\MyResource::class,
-        ]);
     }
 }

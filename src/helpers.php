@@ -18,3 +18,8 @@ function go(string|\Illuminate\Http\RedirectResponse $to, bool $exit = true): vo
         exit;
     }
 }
+
+function appHost(): ?string
+{
+    return parse_url(config('app.url'), PHP_URL_HOST);
+}
