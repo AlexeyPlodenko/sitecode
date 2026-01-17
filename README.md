@@ -5,8 +5,8 @@ Filament v4 basic CMS like plugin. Adds pages management with page structure def
 ## Installation
 
 1. Run `composer install alexeyplodenko/sitecode`.
-
-2. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
+2. Run `php artisan sitecode:install`.
+3. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
 ```php
 <?php
 
@@ -24,7 +24,6 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(\Alexeyplodenko\Sitecode\SitecodePlugin::make()); // <-- Add this line
     }
 }
-
 ```
 
 ## Usage
