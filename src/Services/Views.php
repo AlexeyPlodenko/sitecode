@@ -33,6 +33,26 @@ class Views
         return $collection;
     }
 
+    public function withAdminPagesOnly(): ViewsCollection
+    {
+        $files = [];
+
+        $directory = new RecursiveDirectoryIterator($this->path);
+        $iterator = new RecursiveIteratorIterator($directory);
+        $regExIterator = new RegexIterator($iterator, '/\.blade\.php$/');
+        $sortedIterator = new SplFileSortedIterator($regExIterator);
+        foreach ($sortedIterator as $view) {
+            $admin = mb_substr($view->getRealPath (), 0, -9) . 'admin.php';
+            if (file_exists($admin)) {
+                $files[] = $view;
+            }
+        }
+
+        $collection = new ViewsCollection($files);
+        $collection->setBasePath($this->path);
+        return $collection;
+    }
+
     protected function normalizePath(string $path): string
     {
         return rtrim(str_replace('\\', '/', $path), '/');

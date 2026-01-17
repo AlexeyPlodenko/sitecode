@@ -20,7 +20,7 @@ class PagesForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $views = (new Views())->all()->forUserSelect();
+        $views = (new Views())->withAdminPagesOnly()->forUserSelect();
 
         return $schema
             ->components([
