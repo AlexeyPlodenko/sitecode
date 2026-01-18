@@ -99,6 +99,8 @@ and then adjust the initial Blade file `/resources/views/home.blade.php`:
 </html>
 ```
 
+Now go to Filament installation in your browser (by default at http://localhost/admin), and add your fist page in Pages. You want to create a page with our created `home.blade.php` view created before.
+
 Here is the website page and its content: 
 
 <a href="docs/images/sitecode-content.png"><img src="docs/images/sitecode-content.png" height="200" alt="Website page and content edit" /></a>
