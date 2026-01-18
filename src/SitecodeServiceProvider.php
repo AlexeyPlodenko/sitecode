@@ -40,21 +40,23 @@ class SitecodeServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->app->booted(function() {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/');
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'sitecode');
-        
+
         $this->commands([
             InstallCommand::class,
             InstallCacheCacheOnApacheCommand::class,
             InstallCacheCacheOnNginxCommand::class,
         ]);
-        
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/config.php' => config_path('sitecode.php'),
+                __DIR__ . '/../config/sitecode.php' => config_path('sitecode.php'),
             ], 'sitecode');
 
             $this->publishes([
@@ -63,7 +65,7 @@ class SitecodeServiceProvider extends ServiceProvider
         }
 
         Filament::serving(function () {
-            // 
+            //
         });
     }
 }
