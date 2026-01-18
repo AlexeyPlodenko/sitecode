@@ -3,6 +3,12 @@
     RewriteCond %{ENV:REDIRECT_STATUS} ^$
     RewriteRule ^sitecode_static_cache/ - [F,L]
 
+    # Send X-Cache header on hit
+    <IfModule mod_headers.c>
+        Header set X-Sitecode-Cache "WEBSERVER" env=SITECODE_CACHE
+        Header set X-Sitecode-Cache "WEBSERVER" env=REDIRECT_SITECODE_CACHE
+    </IfModule>
+
     # Serve pre-rendered HTML if present
     RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
 
@@ -10,9 +16,4 @@
     RewriteCond %{REQUEST_URI} !^/sitecode_static_cache
     RewriteCond %{DOCUMENT_ROOT}/sitecode_static_cache%{REQUEST_URI}/index.html -f
     RewriteRule ^ /sitecode_static_cache%{REQUEST_URI}/index.html [E=SITECODE_CACHE:WEBSERVER,L]
-
-    # Send X-Cache header on hit
-    <IfModule mod_headers.c>
-        Header set X-Sitecode-Cache "WEBSERVER" env=SITECODE_CACHE
-    </IfModule>
     ### Sitecode end

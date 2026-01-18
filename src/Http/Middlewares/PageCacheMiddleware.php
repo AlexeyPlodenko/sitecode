@@ -7,6 +7,7 @@ use Alexeyplodenko\Sitecode\Services\PagesRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use RuntimeException;
 
 // @TODO handle the case when $_GET has values
 // @TODO to return correct client side cache headers
@@ -29,7 +30,9 @@ class PageCacheMiddleware
         if (!$page || !$page->cache) {
             return $next($request);
         }
-        $filePath = app(PagesCache::class)->getFilePathFromRequest($request);
+
+        $pagesCache = app(PagesCache::class);
+        $filePath = $pagesCache->getFilePathFromRequest($request);
 
         // we could not get the file path to use. Let's avoid caching this request
         if (!$filePath) {
@@ -57,7 +60,21 @@ class PageCacheMiddleware
         // cache successful responses
         if ($response->isSuccessful()) {
             // ensure the directories exist
-            @mkdir(dirname($filePath), 0755, true);
+            $dirPath = dirname($filePath);
+            $isDirCreated = @mkdir($dirPath, 0755, true);
+
+            if (!$isDirCreated) {
+                $cachePath = $pagesCache->getCachePath();
+                if (!file_exists($cachePath)) {
+                    throw new RuntimeException("Cache directory \"$cachePath\" does not exist.");
+                }
+                if (!is_dir($cachePath)) {
+                    throw new RuntimeException("Cache path \"$cachePath\" is not a directory. Probably a file.");
+                }
+                if (!is_writable($cachePath)) {
+                    throw new RuntimeException("Cache directory \"$cachePath\" is not writable by PHP.");
+                }
+            }
 
             // write cached data
             file_put_contents($filePath, $response->getContent());

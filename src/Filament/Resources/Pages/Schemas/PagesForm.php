@@ -2,6 +2,7 @@
 
 namespace Alexeyplodenko\Sitecode\Filament\Resources\Pages\Schemas;
 
+use Alexeyplodenko\Sitecode\Filament\Resources\Pages\PagesResource;
 use Alexeyplodenko\Sitecode\Models\Page;
 use Alexeyplodenko\Sitecode\Services\Views;
 use Filament\Actions\Action;
@@ -52,7 +53,7 @@ class PagesForm
                                 }
                             })
                     ),
-                
+
                 Group::make()
                     ->schema([
                         Select::make('view')->options($views)->required(),
@@ -69,8 +70,8 @@ class PagesForm
                                 }
 
                                 $msg = $record->isCached()
-                                    ? 'Cached. <a href="/pages/'. $record->id .'/clear-cache" style="text-decoration: underline;">Clear now</a>'
-                                    : 'Not cached. <a href="/pages/'. $record->id .'/cache" style="text-decoration: underline;">Cache now</a>';
+                                    ? 'Cached. <a href="'. PagesResource::getUrl('clear-cache', ['record' => $record]) .'" style="text-decoration: underline;">Clear now</a>'
+                                    : 'Not cached. <a href="'. PagesResource::getUrl('cache', ['record' => $record]) .'" style="text-decoration: underline;">Cache now</a>';
 
                                 return new HtmlString($msg);
                             })

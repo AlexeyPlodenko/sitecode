@@ -8,14 +8,25 @@ use Illuminate\Http\Request;
 class PagesCache
 {
     protected string $cacheDir = 'sitecode_static_cache';
-    
+
+    public function getCacheDir(): string
+    {
+        return $this->cacheDir;
+    }
+
+    public function getCachePath(): string
+    {
+        return public_path($this->cacheDir);
+    }
+
     public function getFilePathFromPageUrl(string $url): ?string
     {
         $requestPath = trim($url, '/');
         if ($requestPath) {
             $requestPath .= '/';
         }
-        $filePath = public_path("$this->cacheDir/{$requestPath}index.html");
+        $cachePath = $this->getCachePath();
+        $filePath = "$cachePath/{$requestPath}index.html";
 
         return $this->isPathWithinBasePath($filePath) ? $filePath : null;
     }
@@ -37,7 +48,8 @@ class PagesCache
         if ($requestPath) {
             $requestPath .= '/';
         }
-        $filePath = public_path("$this->cacheDir/{$requestPath}index.html");
+        $cachePath = $this->getCachePath();
+        $filePath = "$cachePath/{$requestPath}index.html";
 
         return $this->isPathWithinBasePath($filePath) ? $filePath : null;
     }

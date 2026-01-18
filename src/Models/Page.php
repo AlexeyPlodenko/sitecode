@@ -246,11 +246,19 @@ class Page extends Model
             'SERVER_NAME' => $appHost,
         ]);
         app()->instance('request', $subRequest);
-        Route::dispatch($subRequest);
+        $resp = Route::dispatch($subRequest);
+
+        // handle failed cache request
+        if (!$resp->isSuccessful()) {
+            $errorCode = $resp->getStatusCode();
+            $content = $resp->getContent();
+            echo $content;
+            abort($errorCode);
+        }
 
         // restore the original request so Filament can finish rendering
         app()->instance('request', $originalRequest);
-        
+
         return true;
     }
 

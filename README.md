@@ -5,20 +5,21 @@ Filament v4 and v5 basic CMS like plugin. Adds pages management with page struct
 ## Installation
 
 1. Run `composer require alexeyplodenko/sitecode`.
-2. Run `php artisan sitecode:install` to install cache feature.
-3. Run `php artisan migrate` to create DB tables to store data.
-4. Create a public disk, if you need to edit images and files in Sitecode. Go to `/config/filesystems.php`, add the following to the `'disks'` array:
+2. Create the following directories and give PHP write and web server read permissions:
+   1. `/public/media/` for image and file uploads
+   2. `/public/sitecode_static_cache/` for pages cache
+3. Create a public disk, if you need to edit images and files in Sitecode. Go to `/config/filesystems.php`, add the following to the `'disks'` array:
     ```php
-    'public_media_uploads' => [
+    'sitecode_public_media' => [
         'driver' => 'local',
         'root' => public_path('media'),
-        'url' => env('APP_URL') .'/media',
+        'url' => env('APP_URL').'/media',
         'visibility' => 'public',
         'throw' => true,
         'report' => true,
     ],
     ```
-5. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
+4. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
     ```php
     <?php
     
@@ -37,6 +38,8 @@ Filament v4 and v5 basic CMS like plugin. Adds pages management with page struct
         }
     }
     ```
+5. Run `php artisan sitecode:install` to install cache feature.
+6. Run `php artisan migrate` to create DB tables to store data.
 
 ## Usage
 
@@ -96,6 +99,18 @@ and then adjust the initial Blade file `/resources/views/home.blade.php`:
 </html>
 ```
 
+Here is the website page and its content: 
+
+<a href="docs/images/sitecode-content.png"><img src="docs/images/sitecode-content.png" height="200" alt="Website page and content edit" /></a>
+
+Here are the page properties:
+
+<a href="docs/images/sitecode-properties.png"><img src="docs/images/sitecode-properties.png" height="200" alt="Page properties" /></a>
+
+The list of pages:
+
+<a href="docs/images/sitecode-pages.png"><img src="docs/images/sitecode-pages.png" height="200" alt="List of pages" /></a>
+
 ## Special cases
 
 ### Custom admin. panel domain
@@ -105,3 +120,9 @@ Define your custom admin. panel domain as `SITECODE_ADMIN_URL=https://admin.exam
 ### Custom disk name
 
 Define your custom filesystem disk name as `SITECODE_DISK=sitecode_public_media` in `/.env` file, if you do not want to use the default one.
+
+## Issues you might face
+
+### Disk [sitecode_public_media] does not have a configured driver.
+
+You have missed the step 3 from the Installation section of this document.
