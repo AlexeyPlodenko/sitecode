@@ -45,7 +45,7 @@ Filament v4 and v5 basic CMS like plugin. Adds pages management with page struct
 
 For example, we have the following Blade file `/resources/views/home.blade.php`:
 
-```bladehtml
+```blade
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +78,7 @@ return $pageFields;
 ```
 
 and then adjust the initial Blade file `/resources/views/home.blade.php`:
-```bladehtml
+```blade
 @php /** @var \Alexeyplodenko\Sitecode\Models\Page $page */ @endphp
 <!DOCTYPE html>
 <html lang="en">
