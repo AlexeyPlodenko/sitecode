@@ -2,7 +2,7 @@
 
 namespace Alexeyplodenko\Sitecode\Commands\InstallCache;
 
-class InstallOnApacheCommand extends AbstractInstallOnWebserverCommand
+class InstallCacheCacheOnApacheCommand extends AbstractInstallCacheOnWebserverCommand
 {
     public $signature = 'sitecode:install:cache:apache';
     public $description = 'Install and configure Sitecode cache for Apache';

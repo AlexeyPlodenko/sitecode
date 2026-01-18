@@ -21,16 +21,18 @@ class FileContent extends AbstractContent
 
     public function raw(): string
     {
-        $baseUrl = config('filesystems.disks.public_media_uploads.url');
+        $disk = config('sitecode.disk');
+        $baseUrl = config("filesystems.disks.$disk.url");
 
         return "$baseUrl/$this->content";
     }
 
     public function getAbsoluteFilePath(): string
     {
-        $root = config('filesystems.disks.public_media_uploads.root');
+        $disk = config('sitecode.disk');
+        $root = config("filesystems.disks.$disk.root");
         if (!$root) {
-            throw new RuntimeException('filesystems.disks.public_media_uploads.root is not specified in configuration.');
+            throw new RuntimeException("filesystems.disks.$disk.root is not specified in /config/filesystems.php.");
         }
 
         return "$root/$this->content";

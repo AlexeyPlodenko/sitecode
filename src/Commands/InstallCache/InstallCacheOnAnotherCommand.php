@@ -2,7 +2,7 @@
 
 namespace Alexeyplodenko\Sitecode\Commands\InstallCache;
 
-class InstallOnAnotherCommand extends AbstractInstallOnWebserverCommand
+class InstallCacheOnAnotherCommand extends AbstractInstallCacheOnWebserverCommand
 {
     public $signature = 'sitecode:install:cache:other';
     public $description = 'Install and configure Sitecode cache for Nginx';

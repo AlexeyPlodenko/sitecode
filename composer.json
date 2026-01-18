@@ -2,6 +2,13 @@
     "name": "alexeyplodenko/sitecode",
     "type": "library",
     "description": "Filament v4 basic CMS like plugin. Adds pages management with page structure defined in .php files.",
+    "license": "CC-BY-NC-4.0",
+    "authors": [
+        {
+            "name": "Alexey Plodenko",
+            "email": "alexey@plodenko.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Alexeyplodenko\\Sitecode\\": "src/"
@@ -17,14 +24,10 @@
             ]
         }
     },
-    "authors": [
-        {
-            "name": "Alexey Plodenko",
-            "email": "alexey@plodenko.com"
-        }
-    ],
     "require": {
         "php": "^8.2",
-        "filament/filament": "^4|^5"
+        "filament/filament": "^4|^5",
+        "prettus/l5-repository": "^3",
+        "ext-mbstring": "*"
     }
 }

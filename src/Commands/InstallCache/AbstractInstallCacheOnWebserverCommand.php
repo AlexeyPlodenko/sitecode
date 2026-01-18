@@ -4,7 +4,7 @@ namespace Alexeyplodenko\Sitecode\Commands\InstallCache;
 
 use Illuminate\Console\Command;
 
-abstract class AbstractInstallOnWebserverCommand extends Command
+abstract class AbstractInstallCacheOnWebserverCommand extends Command
 {
     protected function createCacheDirectory(): bool
     {

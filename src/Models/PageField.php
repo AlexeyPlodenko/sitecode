@@ -120,9 +120,9 @@ class PageField
                                 $set($this->getFieldName(), $data['html_code']);
                             })
                     )
-                                                    ->fileAttachmentsDisk('public_media_uploads'),
+                                                    ->fileAttachmentsDisk(config('sitecode.disk')),
                 ContentEditor::File => FileUpload::make($this->getFieldName())
-                                                 ->disk('public_media_uploads'),
+                                                 ->disk(config('sitecode.disk')),
             };
 
             if (isset($this->hint)) {

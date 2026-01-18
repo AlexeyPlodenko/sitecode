@@ -2,8 +2,8 @@
 
 namespace Alexeyplodenko\Sitecode;
 
-use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnApacheCommand;
-use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnNginxCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallCacheCacheOnApacheCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallCacheCacheOnNginxCommand;
 use Alexeyplodenko\Sitecode\Commands\InstallCommand;
 use Alexeyplodenko\Sitecode\Services\CachedDecorator;
 use Alexeyplodenko\Sitecode\Services\CallSignatureBuilder;
@@ -18,7 +18,7 @@ class SitecodeServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'sitecode');
+        $this->mergeConfigFrom(__DIR__ . '/../config/sitecode.php', 'sitecode');
 
         $this->app->singleton(PagesRepository::class, function ($app) {
             $signatureBuilder = new CallSignatureBuilder(
@@ -42,24 +42,24 @@ class SitecodeServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/');
 
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sitecode');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'sitecode');
         
         $this->commands([
             InstallCommand::class,
-            InstallOnApacheCommand::class,
-            InstallOnNginxCommand::class,
+            InstallCacheCacheOnApacheCommand::class,
+            InstallCacheCacheOnNginxCommand::class,
         ]);
         
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../config/config.php' => config_path('sitecode.php'),
-            ], 'config');
+            ], 'sitecode');
 
             $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('views/vendor/sitecode'),
-            ], 'sitecode-views');
+                __DIR__ . '/../resources/views/' => resource_path('views/vendor/sitecode'),
+            ], 'sitecode');
         }
 
         Filament::serving(function () {

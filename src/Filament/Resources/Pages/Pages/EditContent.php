@@ -180,8 +180,9 @@ class EditContent extends EditRecord
     }
 
     /**
-     * @param Page $record
+     * @param Model $record
      * @param array<string,mixed> $data
+     * @return Model
      * @throws Throwable
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
@@ -219,20 +220,34 @@ class EditContent extends EditRecord
     }
 
     /**
-     * Since we are using a separate domain for admin panel, and to avoid CORS issues,
-     * and avoid adjusting web server configuration, let's set the Disk URL to admin URL for images to load correctly.
+     * Since we might be using a separate domain for admin panel, and to avoid CORS issues,
+     * and avoid adjusting the web server configuration,
+     * let's set the Disk URL to admin URL for images to load correctly.
      */
     protected function fixMediaUrl(): void
     {
+        $websiteUrl = config('app.url');
+        $adminUrl = config('sitecode.admin.url');
+        if ($websiteUrl === $adminUrl) {
+            // Nothing to do
+            return;
+        }
+
         // Use the Config facade to change the settings in Laravel's configuration repository.
-        $config = Config::get('filesystems.disks.public_media_uploads');
-        $config['url'] = config('admin.url') . '/media';
-        Config::set('filesystems.disks.public_media_uploads', $config);
+        $diskName = config('sitecode.disk');
+        $disk = config("filesystems.disks.$diskName");
+
+
+        // Replace website base URL with admin base URL
+        $websiteUrlLen = mb_strlen($websiteUrl);
+        $disk['url'] = $adminUrl . mb_substr($disk['url'], $websiteUrlLen);
+
+        Config::set("filesystems.disks.$diskName", $disk);
 
         // Force the manager to forget the old 'public_media_uploads' disk instance.
         // The next time Storage::disk('public_media_uploads') is called, a brand new
         // FilesystemAdapter instance will be created using the new config.
-        Storage::forgetDisk('public_media_uploads');
+        Storage::forgetDisk($diskName);
     }
 
     protected function beforeSave(): void

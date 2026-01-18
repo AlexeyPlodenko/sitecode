@@ -2,9 +2,9 @@
 
 namespace Alexeyplodenko\Sitecode\Commands;
 
-use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnAnotherCommand;
-use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnApacheCommand;
-use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallOnNginxCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallCacheOnAnotherCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallCacheCacheOnApacheCommand;
+use Alexeyplodenko\Sitecode\Commands\InstallCache\InstallCacheCacheOnNginxCommand;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
@@ -16,9 +16,9 @@ class InstallCommand extends Command
      * @var string[] 
      */
     protected array $webServers = [
-        'Apache' => InstallOnApacheCommand::class,
-        'Nginx' => InstallOnNginxCommand::class,
-        'Another' => InstallOnAnotherCommand::class,
+        'Apache' => InstallCacheCacheOnApacheCommand::class,
+        'Nginx' => InstallCacheCacheOnNginxCommand::class,
+        'Another' => InstallCacheOnAnotherCommand::class,
     ];
     
     public function handle(): void
