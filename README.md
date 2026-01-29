@@ -2,6 +2,14 @@
 
 Filament v4 and v5 basic CMS like plugin. Adds pages management with page structure defined in `.php` files.
 
+This plugin allows to:
+
+* Create, edit and disable pages;
+* Assign pages to routes;
+* Edit page text, images and videos.
+
+Provides a robust cache. That caches the whole page completely and serves it using only the web server, without triggering any PHP processing. That reduces the page load times significantly and is crucial for those sweet Lighthouse SEO optimized green metrics. With this cache enabled, your web server would send your page within 10ms.
+
 ## Installation
 
 1. Run `composer require alexeyplodenko/sitecode`.
