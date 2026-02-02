@@ -1,6 +1,14 @@
 # Sitecode
 
-Filament v4 and v5 basic CMS like plugin. Adds pages management with page structure defined in `.php` files.
+Are you a developer in need to manage website page texts and images? This Filament plugin does exactly that.
+
+You create a Laravel Blade page template. Specify the editable content with PHP code. Create the page through the Filament admin with the created Blade template and voilà! Your page is live and editable.
+
+[Check the example in Usage](#usage)
+
+## Filament plugin 
+
+Filament v4 and v5 basic CMS like plugin. This plugin adds page management with page structure defined in `.admin.php` files.
 
 This plugin allows to:
 
@@ -49,6 +57,7 @@ Provides a robust cache. That caches the whole page completely and serves it usi
 5. Run `php artisan sitecode:install` to install cache feature.
 6. Run `php artisan migrate` to create DB tables to store data.
 
+<a id="usage"></a>
 ## Usage
 
 For example, we have the following Blade file `/resources/views/home.blade.php`:
@@ -91,7 +100,7 @@ and then adjust the initial Blade file `/resources/views/home.blade.php`:
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>{{ $page->title }}</title>
+    <title>{{ $page->title }}</title>{{-- $page->title comes from the page properties --}}
 </head>
 <body>
 <main>
