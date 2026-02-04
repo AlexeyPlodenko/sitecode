@@ -20,11 +20,13 @@ Provides a robust cache. That caches the whole page completely and serves it usi
 
 ## Installation
 
-1. Run `composer require alexeyplodenko/sitecode`.
-2. Create the following directories and give PHP write and web server read permissions:
+1. Install Laravel https://laravel.com/docs/12.x/installation
+2. Install Filament with `panels` https://filamentphp.com/docs/5.x/introduction/installation
+3. Run `composer require alexeyplodenko/sitecode`.
+4. Create the following directories and give PHP write and web server read permissions:
    1. `/public/media/` for image and file uploads
    2. `/public/sitecode_static_cache/` for pages cache
-3. Create a public disk, if you need to edit images and files in Sitecode. Go to `/config/filesystems.php`, add the following to the `'disks'` array:
+5. Create a public disk, if you need to edit images and files in Sitecode. Go to `/config/filesystems.php`, add the following to the `'disks'` array:
     ```php
     'sitecode_public_media' => [
         'driver' => 'local',
@@ -35,7 +37,7 @@ Provides a robust cache. That caches the whole page completely and serves it usi
         'report' => true,
     ],
     ```
-4. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
+6. Register the plugin in Filament AdminPanelProvider `/app/Providers/Filament/AdminPanelProvider.php`:
     ```php
     <?php
     
@@ -54,8 +56,8 @@ Provides a robust cache. That caches the whole page completely and serves it usi
         }
     }
     ```
-5. Run `php artisan sitecode:install` to install cache feature.
-6. Run `php artisan migrate` to create DB tables to store data.
+7. Run `php artisan sitecode:install` to install cache feature.
+8. Run `php artisan migrate` to create DB tables to store data.
 
 <a id="usage"></a>
 ## Usage
