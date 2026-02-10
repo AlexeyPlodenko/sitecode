@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-use JetBrains\PhpStorm\NoReturn;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View as ViewContract;
+use Alexeyplodenko\Sitecode\Services\PagesRepository;
 
 function viewFromPath(string $path): string
 {
@@ -8,7 +10,6 @@ function viewFromPath(string $path): string
     return str_replace('/', '.', $view);
 }
 
-#[NoReturn]
 function go(string|\Illuminate\Http\RedirectResponse $to, bool $exit = true): void
 {
     $url = is_object($to) ? $to->getTargetUrl() : $to;
@@ -22,4 +23,18 @@ function go(string|\Illuminate\Http\RedirectResponse $to, bool $exit = true): vo
 function appHost(): ?string
 {
     return parse_url(config('app.url'), PHP_URL_HOST);
+}
+
+function sitecodeView(string $url, array $data = []): ViewFactory|ViewContract
+{
+    $pages = app(PagesRepository::class);
+    $page = $pages->findByUrl($url);
+    if (!$page) {
+        abort(404);
+    }
+
+    $page->loadSharedContent();
+
+    $view = viewFromPath($page->view);
+    return view($view, ['page' => $page, ...$data]);
 }

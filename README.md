@@ -154,6 +154,35 @@ return [
 ];
 ```
 
+## Styling rich HTML content (coming from WYSIWYG)
+
+When the rich HTML content is outputted to the page using `{!! $page->getContent('Text') !!}`, the HTML content is wrapped into a `<span class="sitecode">YOU HTML GOES HERE</span>` tag.
+
+You can use the .sitecode class to style the outputted content.
+
+## Usual Laravel routes/controllers/views
+
+You can continue to use usual Laravel routes, controllers and views as usual.
+
+Just define your route in `/routes/web.php`, as you would usually do.
+
+### Usual Laravel controller, but a Sitecode managed content in view
+
+Easy. Return sitecodeView() from your controller's action.
+
+For example, create a page at `/events` inside Sitecode panel, and then adjust your `/routes/web.php` file:
+```php
+Route::get('/events', function() {
+    $events = [
+        ['name' => 'An Event', 'date' => '2026-02-10', 'time' => '12:00']
+   ];
+   
+    return sitecodeView('/events', ['events' => $events]);
+});
+```
+
+The `$events` variable will be accessible in your Blade view, chosen for the `/events` endpoints in the Sitecode panel.
+
 ## Special cases
 
 <a name="sitecode-configiration-file"></a>

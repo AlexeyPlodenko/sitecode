@@ -5,7 +5,7 @@ namespace Alexeyplodenko\Sitecode\Models\Content;
 class HtmlAbstractContent extends AbstractContent
 {
     protected string $decoratedContent;
-    protected string $wrapCssClass = 'cms';
+    protected string $wrapCssClass = 'sitecode';
     protected string $wrapHtmlTag = 'span';
 
     public function getContent(): string
