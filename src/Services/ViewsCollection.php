@@ -9,6 +9,11 @@ class ViewsCollection extends Collection
 {
     protected string $basePath;
 
+    public function __construct($items = [], protected ?array $names = null)
+    {
+        parent::__construct($items);
+    }
+
     public function setBasePath(string $basePath): static
     {
         $this->basePath = rtrim($basePath, '\\/');
@@ -24,9 +29,10 @@ class ViewsCollection extends Collection
         $res->setBasePath($this->basePath);
 
         $basePathLen = mb_strlen($this->basePath) + 1;
-        return $this->mapWithKeys(function(SplFileInfo $file) use ($basePathLen) {
+        return $this->mapWithKeys(function(SplFileInfo $file, $i) use ($basePathLen) {
             $path = mb_substr($file->getPathname(), $basePathLen);
-            return [$path => $path];
+
+            return [$path => $this->names ? $this->names[$i] : $path];
         });
     }
 }

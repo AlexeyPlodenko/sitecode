@@ -56,8 +56,12 @@ Provides a robust cache. That caches the whole page completely and serves it usi
         }
     }
     ```
-7. Run `php artisan sitecode:install` to install cache feature.
-8. Run `php artisan migrate` to create DB tables to store data.
+7. Delete the contents of the `/routes/web.php` file.
+8. Run `php artisan sitecode:install` to install cache feature.
+9. Run `php artisan migrate` to create DB tables to store data.
+10. Run `npm i` to install JS libraries.
+11. Run `npm run dev` to build your CSS and JS assets on the fly. Or `npm run build` to create them for production.
+12. Once you have created a Filament user `php artisan make:filament-user` and started your web server, you can access the Admin panel via http://localhost/admin/
 
 <a id="usage"></a>
 ## Usage
@@ -132,7 +136,30 @@ The list of pages:
 
 <a href="docs/images/sitecode-pages.png"><img src="docs/images/sitecode-pages.png" height="200" alt="List of pages" /></a>
 
+## Views/Templates
+
+Sitecode automatically recursively loads all .blade.php files from your project's /resources/views/ directory.
+
+You can manually specify the list of views/templates to use with a user-friendly name, by publishing the <a href="#sitecode-configiration-file">Sitecode configuration file</a> and listing the views your want to show to the user in `/config/sitecode.php` `views` array:
+```php
+<?php
+
+return [
+    // ...
+    'views' => [
+        'about-us.blade.php' => 'About us',
+        'category.blade.php' => 'Category',
+        'home.blade.php' => 'Home',
+    ]
+];
+```
+
 ## Special cases
+
+<a name="sitecode-configiration-file"></a>
+### Publishing Sitecode configuration file
+
+To publish and make customizable the configuration file, run the following command `php artisan vendor:publish --tag=sitecode`.
 
 ### Custom admin. panel domain
 

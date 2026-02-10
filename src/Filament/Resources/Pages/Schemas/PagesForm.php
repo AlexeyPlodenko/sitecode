@@ -5,6 +5,7 @@ namespace Alexeyplodenko\Sitecode\Filament\Resources\Pages\Schemas;
 use Alexeyplodenko\Sitecode\Filament\Resources\Pages\PagesResource;
 use Alexeyplodenko\Sitecode\Models\Page;
 use Alexeyplodenko\Sitecode\Services\Views;
+use Alexeyplodenko\Sitecode\Services\ViewsFromConfig;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
@@ -21,7 +22,12 @@ class PagesForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $views = (new Views())->withAdminPagesOnly()->forUserSelect();
+        $views = ViewsFromConfig::make();
+        if ($views) {
+            $viewsForSelect = $views->all()->forUserSelect();
+        } else {
+            $viewsForSelect = (new Views())->withAdminPagesOnly()->forUserSelect();
+        }
 
         return $schema
             ->components([
@@ -56,7 +62,7 @@ class PagesForm
 
                 Group::make()
                     ->schema([
-                        Select::make('view')->options($views)->required(),
+                        Select::make('view')->options($viewsForSelect)->required(),
                         Checkbox::make('cache'),
                         TextEntry::make('is_cached')
                             ->label('Cache Status')
