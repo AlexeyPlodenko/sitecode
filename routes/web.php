@@ -6,5 +6,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('{any}', function () {
     $url = '/'. trim(Request::path(), '/');
 
-    return sitecodeView($url);
+    return sitecodeViewFromUrl($url);
 })->where('any', '.*')->domain(appHost())->middleware(PageCacheMiddleware::class);

@@ -122,9 +122,8 @@ class PageFields
 
             $id = static::$id++;
             $this->filamentComponent = Section::make();
-            $this->filamentComponent->view('sitecode::filament.components.section');
             $this->filamentComponent->id("page_fields_$id");
-            $this->filamentComponent->label($this->title);
+            $this->filamentComponent->heading($this->title);
             $this->filamentComponent->compact();
             $this->filamentComponent->collapsible();
             $this->filamentComponent->persistCollapsed();

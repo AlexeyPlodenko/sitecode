@@ -168,7 +168,7 @@ Just define your route in `/routes/web.php`, as you would usually do.
 
 ### Usual Laravel controller, but a Sitecode managed content in view
 
-Easy. Return sitecodeView() from your controller's action.
+Easy. Return `sitecodeViewFromUrl()` from your controller's action.
 
 For example, create a page at `/events` inside Sitecode panel, and then adjust your `/routes/web.php` file:
 ```php
@@ -176,12 +176,25 @@ Route::get('/events', function() {
     $events = [
         ['name' => 'An Event', 'date' => '2026-02-10', 'time' => '12:00']
    ];
-   
-    return sitecodeView('/events', ['events' => $events]);
+
+    return sitecodeViewFromUrl('/event', ['event' => $event]);
 });
 ```
 
 The `$events` variable will be accessible in your Blade view, chosen for the `/events` endpoints in the Sitecode panel.
+
+### A page with shared content, but no entry in Sitecode panel
+
+Do you need to show a page, but do not want to create a record in Sitecode admin panel. No worries.
+
+Use the `sitecodeViewFromBlade($view, $data)` helper function. For example,
+```php
+Route::get('/event/{slug}', function(string $slug) {
+    $event = \App\Models\Event::query()->where('slug', $slug)->firstOrFail();
+   
+    return sitecodeViewFromBlade('event.blade.php', ['event' => $event]);
+});
+```
 
 ## Special cases
 

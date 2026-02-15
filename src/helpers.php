@@ -3,6 +3,7 @@
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View as ViewContract;
 use Alexeyplodenko\Sitecode\Services\PagesRepository;
+use Alexeyplodenko\Sitecode\Models\Page;
 
 function viewFromPath(string $path): string
 {
@@ -25,13 +26,24 @@ function appHost(): ?string
     return parse_url(config('app.url'), PHP_URL_HOST);
 }
 
-function sitecodeView(string $url, array $data = []): ViewFactory|ViewContract
+function sitecodeViewFromUrl(string $url, array $data = []): ViewFactory|ViewContract
 {
     $pages = app(PagesRepository::class);
     $page = $pages->findByUrl($url);
     if (!$page) {
         abort(404);
     }
+
+    $page->loadSharedContent();
+
+    $view = viewFromPath($page->view);
+    return view($view, ['page' => $page, ...$data]);
+}
+
+function sitecodeViewFromBlade(string $bladeView, array $data = []): ViewFactory|ViewContract
+{
+    $page = new Page();
+    $page->view = $bladeView;
 
     $page->loadSharedContent();
 

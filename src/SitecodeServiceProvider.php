@@ -46,8 +46,6 @@ class SitecodeServiceProvider extends ServiceProvider
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/');
 
-        $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'sitecode');
-
         $this->commands([
             InstallCommand::class,
             InstallCacheCacheOnApacheCommand::class,
