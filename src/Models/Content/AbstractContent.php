@@ -6,7 +6,7 @@ use RuntimeException;
 
 abstract class AbstractContent
 {
-    public function __construct(protected string $content = '')
+    public function __construct(protected string|bool $content = '')
     {
     }
 
@@ -15,7 +15,7 @@ abstract class AbstractContent
         return $this->getContent();
     }
 
-    public static function fromContent(string $content = ''): static
+    public static function fromContent(string|bool $content = ''): static
     {
         return new static($content);
     }
@@ -29,8 +29,8 @@ abstract class AbstractContent
     {
         return htmlspecialchars($this->content, ENT_QUOTES);
     }
-    
-    public function raw(): string
+
+    public function raw(): mixed
     {
         return $this->content;
     }

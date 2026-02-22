@@ -61,8 +61,13 @@ class PageFields
     public function getFieldByFullTitle(string $fullTitle): ?PageField
     {
         // @TODO use recursive iterator here
-        return array_find($this->getFieldsFlat(), fn($field) => $field->getFullTitle() === $fullTitle);
+        foreach ($this->getFieldsFlat() as $field) {
+            if ($field->getFullTitle() === $fullTitle) {
+                return $field;
+            }
+        }
 
+        return null;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Alexeyplodenko\Sitecode\Models;
 
 use Alexeyplodenko\Sitecode\Enums\ContentEditor;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field as FilamentField;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -107,6 +108,11 @@ class PageField
         return $this->setEditor(ContentEditor::File);
     }
 
+    public function setEditorCheckbox(): static
+    {
+        return $this->setEditor(ContentEditor::Checkbox);
+    }
+
     public function isEditorWysiwyg(): bool
     {
         return $this->getEditor() === ContentEditor::WYSIWYG;
@@ -119,6 +125,8 @@ class PageField
                 ContentEditor::TextInput => TextInput::make($this->getFieldName()),
 
                 ContentEditor::Textarea => Textarea::make($this->getFieldName()),
+
+                ContentEditor::Checkbox => Checkbox::make($this->getFieldName()),
 
                 ContentEditor::WYSIWYG => RichEditor::make($this->getFieldName())
                     ->hintAction(

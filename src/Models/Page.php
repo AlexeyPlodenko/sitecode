@@ -5,6 +5,7 @@ namespace Alexeyplodenko\Sitecode\Models;
 use Alexeyplodenko\Sitecode\Enums\ContentEditor;
 use Alexeyplodenko\Sitecode\Exceptions\Models\Page\CacheDisabled;
 use Alexeyplodenko\Sitecode\Models\Content\AbstractContent;
+use Alexeyplodenko\Sitecode\Models\Content\BooleanContent;
 use Alexeyplodenko\Sitecode\Models\Content\FileContent;
 use Alexeyplodenko\Sitecode\Models\Content\HtmlAbstractContent;
 use Alexeyplodenko\Sitecode\Models\Content\TextContent;
@@ -133,7 +134,7 @@ class Page extends Model
         return $this->makeContentFromTitle($titleNormalized, $this->content[$titleNormalized]);
     }
 
-    protected function makeContentFromTitle(string $title, string $content): AbstractContent
+    protected function makeContentFromTitle(string $title, string|bool $content): AbstractContent
     {
         $field = $this->getPageFields()->getFieldByFullTitle($title);
         if (!$field) {
@@ -144,7 +145,7 @@ class Page extends Model
     }
 
 
-    protected function makeContentFromEditor(ContentEditor $editor, string $content): AbstractContent
+    protected function makeContentFromEditor(ContentEditor $editor, string|bool $content): AbstractContent
     {
         // @TODO strategy pattern
         switch ($editor) {
@@ -156,6 +157,9 @@ class Page extends Model
 
             case ContentEditor::WYSIWYG:
                 return HtmlAbstractContent::fromContent($content);
+
+            case ContentEditor::Checkbox:
+                return BooleanContent::fromContent($content);
         }
     }
 

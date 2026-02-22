@@ -8,4 +8,5 @@ Enum ContentEditor: int
     case Textarea = 2;
     case WYSIWYG = 3;
     case File = 4;
+    case Checkbox = 5;
 }

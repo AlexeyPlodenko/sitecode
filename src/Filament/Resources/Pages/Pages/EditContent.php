@@ -97,9 +97,9 @@ class EditContent extends EditRecord
         $sharedFieldTitles = $this->getSharedFieldFullTitles();
         if ($sharedFieldTitles) {
             $sharedContentItems = SharedContent::query()
-                                                ->select(['title', 'content'])
-                                                ->whereIn('title', $sharedFieldTitles)
-                                                ->get();
+                ->select(['title', 'content'])
+                ->whereIn('title', $sharedFieldTitles)
+                ->get();
             foreach ($sharedContentItems as $sharedContentItem) {
                 /** @var SharedContent $sharedContentItem */
                 $sharedContent[$sharedContentItem->title] = $sharedContentItem->content;
@@ -130,7 +130,9 @@ class EditContent extends EditRecord
     protected function normalizeFormData(array $data): array
     {
         foreach ($data as &$value) {
-            $value = $this->removeHtmlWithoutContent($value);
+            if (is_string($value)) {
+                $value = $this->removeHtmlWithoutContent($value);
+            }
         }
         unset($value);
 
@@ -193,10 +195,10 @@ class EditContent extends EditRecord
 
             if ($this->sharedContent) {
                 $existingContent = SharedContent::query()
-                                                ->select(['id', 'title'])
-                                                ->whereIn('title', array_keys($this->sharedContent))
-                                                ->lockForUpdate()
-                                                ->get();
+                    ->select(['id', 'title'])
+                    ->whereIn('title', array_keys($this->sharedContent))
+                    ->lockForUpdate()
+                    ->get();
 
                 foreach ($existingContent as $item) {
                     /** @var SharedContent $item */
