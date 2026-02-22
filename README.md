@@ -160,6 +160,19 @@ When the rich HTML content is outputted to the page using `{!! $page->getContent
 
 You can use the .sitecode class to style the outputted content.
 
+## Modifying Filament component field component
+
+Whenever you need to customize the field, that Sitecode produces to edit the content, the original Filament component field is easy accessible using the `->getFilamentComponent()` method in `*.admin.php` file:
+
+```php
+<?php
+$pageFields = new \Alexeyplodenko\Sitecode\Models\PageFields();
+
+/** @var \Filament\Forms\Components\TextInput $component */
+$component = $pageFields->makeField('Title')->getFilamentComponent();
+$component->label('My custom label!');
+```
+
 ## Usual Laravel routes/controllers/views
 
 You can continue to use usual Laravel routes, controllers and views as usual.
