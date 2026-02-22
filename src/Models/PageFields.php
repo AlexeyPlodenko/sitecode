@@ -10,6 +10,7 @@ class PageFields
     protected static int $id = 0;
     protected bool $isShared = false;
     protected Section $filamentComponent;
+    protected ?string $label = null;
 
     /**
      * @var array<string, string>
@@ -21,6 +22,18 @@ class PageFields
 
     public function __construct(protected ?string $title = null, protected ?PageFields $parent = null)
     {
+    }
+
+    public function label(string|null $label): static
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
     }
 
     public function concat(PageFields $pageFields): static
@@ -123,7 +136,7 @@ class PageFields
             $id = static::$id++;
             $this->filamentComponent = Section::make();
             $this->filamentComponent->id("page_fields_$id");
-            $this->filamentComponent->heading($this->title);
+            $this->filamentComponent->heading($this->getLabel() ?? $this->title);
             $this->filamentComponent->compact();
             $this->filamentComponent->collapsible();
             $this->filamentComponent->persistCollapsed();

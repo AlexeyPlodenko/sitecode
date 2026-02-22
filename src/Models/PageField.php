@@ -18,6 +18,7 @@ class PageField
     protected FilamentField $filamentComponent;
     protected bool $isShared;
     protected string $hint;
+    protected ?string $label = null;
 
     public function __construct(protected string $title, protected ?PageFields $parent = null)
     {
@@ -26,6 +27,19 @@ class PageField
     public static function fromTitle(string $title, ?PageFields $parent = null): static
     {
         return new static($title, $parent);
+    }
+
+
+    public function label(string|null $label): static
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
     }
 
     public function getHint(): string
@@ -97,13 +111,15 @@ class PageField
     {
         return $this->getEditor() === ContentEditor::WYSIWYG;
     }
-    
+
     public function getFilamentComponent(): FilamentField
     {
         if (!isset($this->filamentComponent)) {
             $this->filamentComponent = match ($this->getEditor()) {
                 ContentEditor::TextInput => TextInput::make($this->getFieldName()),
+
                 ContentEditor::Textarea => Textarea::make($this->getFieldName()),
+
                 ContentEditor::WYSIWYG => RichEditor::make($this->getFieldName())
                     ->hintAction(
                         Action::make('editHtml')
@@ -120,16 +136,17 @@ class PageField
                                 $set($this->getFieldName(), $data['html_code']);
                             })
                     )
-                                                    ->fileAttachmentsDisk(config('sitecode.disk')),
+                    ->fileAttachmentsDisk(config('sitecode.disk')),
+
                 ContentEditor::File => FileUpload::make($this->getFieldName())
-                                                 ->disk(config('sitecode.disk')),
+                    ->disk(config('sitecode.disk')),
             };
 
             if (isset($this->hint)) {
                 $this->filamentComponent->hint($this->hint);
             }
 
-            $label = $this->getTitle();
+            $label = $this->getLabel() ?? $this->getTitle();
             if ($this->isShared()) {
                 $label .= ' (shared)';
             }

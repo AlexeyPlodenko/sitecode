@@ -93,7 +93,7 @@ To make the content editable with `Sitecode`, create a file `/resources/views/ho
 <?php
 $pageFields = new \Alexeyplodenko\Sitecode\Models\PageFields();
 
-$pageFields->makeField('Title');
+$pageFields->makeField('Title')->label(__('My Custom Title'));
 $pageFields->makeField('Text')->setEditorWysiwyg();
 $pageFields->makeField('Image')->setEditorFile();
 
