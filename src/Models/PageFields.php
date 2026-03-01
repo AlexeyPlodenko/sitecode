@@ -2,15 +2,26 @@
 
 namespace Alexeyplodenko\Sitecode\Models;
 
+use Alexeyplodenko\Sitecode\Models\Traits\HasFieldName;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
 use RuntimeException;
 
 class PageFields
 {
+    use HasFieldName;
+
     protected static int $id = 0;
     protected bool $isShared = false;
-    protected Section $filamentComponent;
+    protected bool $repeated = false;
+    protected ?string $repeaterName = null;
+    protected Section|Repeater $filamentComponent;
     protected ?string $label = null;
+
+    /**
+     * @var PageField[]
+     */
+    protected array $fieldsFlat;
 
     /**
      * @var array<string, string>
@@ -94,15 +105,23 @@ class PageFields
         return $this;
     }
 
+    public function isRepeated(): bool
+    {
+        return $this->repeated;
+    }
+
+    public function useRepeater(bool $flag = true, ?string $name = null): static
+    {
+        $this->repeated = $flag;
+        $this->repeaterName = $name;
+
+        return $this;
+
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function getFullTitle(): ?string
-    {
-        $parentFullTitle = $this->parent?->getFullTitle();
-        return $parentFullTitle ? $parentFullTitle . ": $this->title" : $this->title;
     }
 
     public function makeField(string $title): PageField
@@ -130,42 +149,58 @@ class PageFields
         return $fieldsGroup;
     }
 
-    public function getFilamentComponent(): Section
+    public function getFilamentComponent(): Section|Repeater
     {
         if (!isset($this->filamentComponent)) {
-            $subComponents = [];
+            $schema = [];
             foreach ($this->fields as $field) {
-                $subComponents[] = $field->getFilamentComponent();
+                $schema[] = $field->getFilamentComponent();
             }
 
             $id = static::$id++;
+            $fCompId = "page_fields_$id";
+
+            if ($this->repeated) {
+                $repeater = Repeater::make($this->getFullTitle());
+                $repeater->name($this->repeaterName ?? $this->getLabel() ?? $this->title);
+                $repeater->schema($schema);
+                $repeater->columnSpanFull();
+
+                $repeaterSchema = [$repeater];
+            }
+
             $this->filamentComponent = Section::make();
-            $this->filamentComponent->id("page_fields_$id");
             $this->filamentComponent->heading($this->getLabel() ?? $this->title);
+            $this->filamentComponent->id("page_fields_$id");
             $this->filamentComponent->compact();
             $this->filamentComponent->collapsible();
             $this->filamentComponent->persistCollapsed();
             $this->filamentComponent->columns(1);
-            $this->filamentComponent->schema($subComponents);
+            $this->filamentComponent->schema($repeaterSchema ?? $schema);
         }
 
         return $this->filamentComponent;
     }
 
-    /**
-     * @return PageField[]
-     */
     public function getFieldsFlat(): array
     {
-        $fields = [];
-        foreach ($this->fields as $field) {
-            if ($field instanceof PageField) {
-                $fields[] = $field;
-            } else {
-                $fields = array_merge($fields, $field->getFieldsFlat());
+        if (!isset($this->fieldsFlat)) {
+            $this->fieldsFlat = [];
+
+            foreach ($this->fields as $field) {
+                if ($field instanceof PageField) {
+                    $this->fieldsFlat[] = $field;
+                } elseif ($field instanceof PageFields) {
+                    $this->fieldsFlat = array_merge($this->fieldsFlat, $field->getFieldsFlat());
+                } else {
+                    throw new \RuntimeException('Unknown type of field.');
+                }
             }
+
+            return $this->fieldsFlat;
         }
-        return $fields;
+
+        return $this->fieldsFlat;
     }
 
     /**
@@ -174,7 +209,7 @@ class PageFields
     public function getSharedFieldsFlat(): array
     {
         $fields = $this->getFieldsFlat();
-        return array_filter($fields, fn (PageField $field) => $field->isShared());
+        return array_filter($fields, fn ($field) => $field->isShared());
     }
 
     public function getFullTitlesFlat(): array

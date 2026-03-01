@@ -129,9 +129,11 @@ class EditContent extends EditRecord
 
     protected function normalizeFormData(array $data): array
     {
-        foreach ($data as &$value) {
+        foreach ($data as $key => &$value) {
             if (is_string($value)) {
                 $value = $this->removeHtmlWithoutContent($value);
+            } elseif (is_array($value)) {
+                $value = $this->normalizeFormData($value);
             }
         }
         unset($value);
@@ -162,7 +164,7 @@ class EditContent extends EditRecord
             $fieldName = $field->getFieldName();
             $fieldContent = $data[$fieldName] ?? null;
 
-            if ($field->getEditor() === ContentEditor::WYSIWYG) {
+            if ($field instanceof PageField && $field->getEditor() === ContentEditor::WYSIWYG) {
                 $fieldContent = $this->removeTargetBlank($fieldContent);
             }
 
@@ -173,6 +175,13 @@ class EditContent extends EditRecord
             }
 
             $data[$fieldName] = $fieldContent;
+        }
+
+        // a special case for repeater
+        foreach ($data as $key => $item) {
+            if (is_array($item)) {
+                $pageContent[$key] = $item;
+            }
         }
 
         $this->mutatedData = $data;

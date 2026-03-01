@@ -3,6 +3,7 @@
 namespace Alexeyplodenko\Sitecode\Models;
 
 use Alexeyplodenko\Sitecode\Enums\ContentEditor;
+use Alexeyplodenko\Sitecode\Models\Traits\HasFieldName;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field as FilamentField;
@@ -15,6 +16,8 @@ use Filament\Schemas\Components\Utilities\Set;
 
 class PageField
 {
+    use HasFieldName;
+
     protected ContentEditor $editor;
     protected FilamentField $filamentComponent;
     protected bool $isShared;
@@ -58,22 +61,6 @@ class PageField
     public function getTitle(): string
     {
         return $this->title;
-    }
-
-    /**
-     * Since Filament converts field names with dots to arrays, lets remove the dots from the field names,
-     * to prevent this behavior.
-     */
-    public function getFieldName(): ?string
-    {
-        $fullTitle = $this->getFullTitle();
-        return $fullTitle ? str_replace('.', '', $fullTitle) : $fullTitle;
-    }
-
-    public function getFullTitle(): ?string
-    {
-        $parentFullTitle = $this->parent?->getFullTitle();
-        return $parentFullTitle ? $parentFullTitle . ": $this->title" : $this->title;
     }
 
     public function getEditor(): ContentEditor

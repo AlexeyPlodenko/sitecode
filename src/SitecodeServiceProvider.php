@@ -36,6 +36,8 @@ class SitecodeServiceProvider extends ServiceProvider
         $this->app->singleton(PagesCache::class, function () {
             return new PagesCache();
         });
+
+        $this->app->singleton(SharedContentAccessor::class, fn () => new SharedContentAccessor());
     }
 
     public function boot(): void

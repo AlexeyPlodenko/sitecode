@@ -10,7 +10,9 @@ use Alexeyplodenko\Sitecode\Models\Content\FileContent;
 use Alexeyplodenko\Sitecode\Models\Content\HtmlAbstractContent;
 use Alexeyplodenko\Sitecode\Models\Content\TextContent;
 use Alexeyplodenko\Sitecode\Services\BladeView;
+use Alexeyplodenko\Sitecode\Services\ContentAccessor;
 use Alexeyplodenko\Sitecode\Services\PagesCache;
+use Alexeyplodenko\Sitecode\Models\Content\ContentCollection;
 use Eloquent;
 use Henrik9999\StringSimilarity\StringSimilarity;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +22,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Route;
 use RuntimeException;
+use Alexeyplodenko\Sitecode\Services\SharedContentAccessor;
 
 /**
  * @property int $id
@@ -35,10 +38,6 @@ use RuntimeException;
  */
 class Page extends Model
 {
-    const ON_NO_CONTENT_THROW = 1;
-    const ON_NO_CONTENT_IGNORE = 2;
-    const ON_NO_CONTENT_OUTPUT_PLACEHOLDER = 3;
-
     /** @var string[] */
     protected array $fields = ['id', 'url', 'title', 'view', 'content', 'created_at', 'updated_at'];
 
@@ -59,10 +58,9 @@ class Page extends Model
         'content' => 'array',
         'cache' => 'bool',
     ];
-    protected string $noContentPlaceholder = 'CONTENT IS NOT SET';
-    protected int $noContentAction = self::ON_NO_CONTENT_IGNORE;
     protected Collection $sharedContent;
     protected array $sharedContentCache = [];
+    protected ContentAccessor $contentAccessor;
 
     /** @var string[] */
     protected array $fieldsLookup;
@@ -76,18 +74,13 @@ class Page extends Model
         return isset($this->fieldsLookup[strtolower($fieldName)]);
     }
 
-    public function setNoContentAction(int $action): static
+    public function getContentAccessor()
     {
-        $this->noContentAction = $action;
-
-        return $this;
-    }
-
-    public function setNoContentPlaceholder(string $placeholder): static
-    {
-        $this->noContentPlaceholder = $placeholder;
-
-        return $this;
+        if (!isset($this->contentAccessor)) {
+            $fields = $this->getPageFields();
+            $this->contentAccessor = new ContentAccessor($fields, $this->content);
+        }
+        return $this->contentAccessor;
     }
 
     /**
@@ -96,93 +89,25 @@ class Page extends Model
      */
     public function hasAnyContent(array $titles): bool
     {
-        foreach ($titles as $title) {
-            $titleNormalized = $this->normalizeTitle($title);
-
-            if ((isset($this->content[$titleNormalized]) && $this->content[$titleNormalized]) || $this->hasSharedContent($titleNormalized)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getContentAccessor()->hasAny($title);
     }
 
     public function hasContent(string|array $title): bool
     {
-        $titleNormalized = $this->normalizeTitle($title);
-
-        if (!$this->content || !isset($this->content[$titleNormalized])) {
-            return $this->hasSharedContent($titleNormalized);
-        }
-
-        return (bool)$this->content[$titleNormalized];
+        return $this->getContentAccessor()->has($title);
     }
 
-    public function getContent(string|array $title): AbstractContent
+    /**
+     * @return AbstractContent|AbstractContent[]
+     */
+    public function getContent(string|array $title): AbstractContent|ContentCollection
     {
-        $titleNormalized = $this->normalizeTitle($title);
-
-        if (!$this->content || !isset($this->content[$titleNormalized])) {
-            $sharedContent = $this->getSharedContent($titleNormalized);
-            if (isset($sharedContent)) {
-                return $this->makeContentFromTitle($titleNormalized, $sharedContent->content ?? '');
-            }
-
-            return $this->handleNoContent($titleNormalized);
-        }
-
-        return $this->makeContentFromTitle($titleNormalized, $this->content[$titleNormalized]);
-    }
-
-    protected function makeContentFromTitle(string $title, string|bool $content): AbstractContent
-    {
-        $field = $this->getPageFields()->getFieldByFullTitle($title);
-        if (!$field) {
-            throw new RuntimeException("Requested field \"$title\" not found in admin pages.");
-        }
-
-        return $this->makeContentFromEditor($field->getEditor(), $content);
-    }
-
-
-    protected function makeContentFromEditor(ContentEditor $editor, string|bool $content): AbstractContent
-    {
-        // @TODO strategy pattern
-        switch ($editor) {
-            default:
-                return TextContent::fromContent($content);
-
-            case ContentEditor::File:
-                return FileContent::fromContent($content);
-
-            case ContentEditor::WYSIWYG:
-                return HtmlAbstractContent::fromContent($content);
-
-            case ContentEditor::Checkbox:
-                return BooleanContent::fromContent($content);
-        }
+        return $this->getContentAccessor()->get($title);
     }
 
     public function hasSharedContent(string|array $title): bool
     {
         return (bool)$this->getSharedContent($title)?->content;
-    }
-
-    protected function getSharedContent(string|array $title): ?SharedContent
-    {
-        $titleNormalized = $this->normalizeTitle($title);
-
-        if (isset($this->sharedContent)) {
-            return $this->sharedContent->get($titleNormalized);
-        }
-
-        if (!isset($this->sharedContentCache[$titleNormalized])) {
-            $this->sharedContentCache[$titleNormalized] = $this->getShareContentQuery()
-                ->where('title', $titleNormalized)
-                ->first();
-        }
-
-        return $this->sharedContentCache[$titleNormalized];
     }
 
     // @TODO make method cacheable using "php artisan optimize"
@@ -318,46 +243,5 @@ class Page extends Model
     protected function normalizePath(string $path): string
     {
         return rtrim(str_replace('\\', '/', $path), '/');
-    }
-
-    protected function normalizeTitle(string|array $title): string
-    {
-        if (is_string($title)) {
-            return $title;
-        }
-
-        return implode(': ', $title);
-    }
-
-    protected function handleNoContent(string $title): AbstractContent
-    {
-        switch ($this->noContentAction) {
-            case static::ON_NO_CONTENT_THROW:
-                $this->throwNoContent($title);
-
-            case static::ON_NO_CONTENT_IGNORE:
-                return $this->makeContentFromEditor(ContentEditor::TextInput, '');
-
-            case static::ON_NO_CONTENT_OUTPUT_PLACEHOLDER:
-                return $this->makeContentFromEditor(ContentEditor::TextInput, $this->noContentPlaceholder);
-
-            default:
-                throw new RuntimeException('Unknown no content action.');
-        }
-    }
-
-    protected function throwNoContent(string $title, int $maxSimilarTitles = 10): void
-    {
-        $msg = "Could not find \"$title\".";
-
-        $similarTitles = $this->getSimilarTitles($title);
-        if ($similarTitles) {
-            if ($maxSimilarTitles > 0) {
-                $similarTitles = array_slice($similarTitles, 0, $maxSimilarTitles);
-            }
-            $msg .= ' Maybe you have meant: "' . implode('", "', $similarTitles) . '".';
-        }
-
-        throw new RuntimeException($msg);
     }
 }

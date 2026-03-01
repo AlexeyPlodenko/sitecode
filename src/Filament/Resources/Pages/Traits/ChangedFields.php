@@ -14,7 +14,11 @@ trait ChangedFields
         // Compute changed fields by comparing with originals captured in beforeSave()
         foreach ($oldData as $key => $old) {
             $new = $newData[$key] ?? null;
-            if ($this->normalizeComparisonData($new) !== $this->normalizeComparisonData($old)) {
+            if (is_array($new) || is_array($old)) {
+                if ($new != $old) {
+                    $changed[$key] = $key;
+                }
+            } elseif ($this->normalizeComparisonData($new) !== $this->normalizeComparisonData($old)) {
                 $changed[$key] = $key;
             }
         }
