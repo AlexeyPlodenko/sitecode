@@ -110,10 +110,10 @@ class PageFields
         return $this->repeated;
     }
 
-    public function useRepeater(bool $flag = true, ?string $name = null): static
+    public function useRepeater(?string $name = null, bool $flag = true): static
     {
-        $this->repeated = $flag;
         $this->repeaterName = $name;
+        $this->repeated = $flag;
 
         return $this;
 
