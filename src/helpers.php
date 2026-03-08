@@ -44,6 +44,7 @@ function sitecodeViewFromBlade(string $bladeView, array $data = []): ViewFactory
 {
     $page = new Page();
     $page->view = $bladeView;
+    $page->content = [];
 
     $page->loadSharedContent();
 
