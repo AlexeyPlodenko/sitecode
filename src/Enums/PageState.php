@@ -4,13 +4,11 @@ namespace Alexeyplodenko\Sitecode\Enums;
 
 use Alexeyplodenko\Sitecode\Enums\Traits\HasValues;
 
-Enum ContentEditor: int
+Enum PageState: int
 {
     use HasValues;
 
-    case TextInput = 1;
-    case Textarea = 2;
-    case WYSIWYG = 3;
-    case File = 4;
-    case Checkbox = 5;
+    case Disabled = 0;
+    case Enabled = 1;
+    case Draft = 2;
 }

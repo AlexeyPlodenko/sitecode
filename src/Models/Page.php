@@ -23,6 +23,7 @@ use Illuminate\Support\Collection;
 use Route;
 use RuntimeException;
 use Alexeyplodenko\Sitecode\Services\SharedContentAccessor;
+use Alexeyplodenko\Sitecode\Enums\PageState;
 
 /**
  * @property int $id
@@ -30,6 +31,7 @@ use Alexeyplodenko\Sitecode\Services\SharedContentAccessor;
  * @property string $title
  * @property string $view
  * @property bool $cache
+ * @property PageState $state
  * @property ?string $content
  * @property ?Carbon $created_at
  * @property ?Carbon $updated_at
@@ -47,7 +49,8 @@ class Page extends Model
         'title',
         'view',
         'content',
-        'cache'
+        'cache',
+        'state',
     ];
     protected string $viewDotPath;
     protected PageFields $pageFields;
@@ -57,6 +60,7 @@ class Page extends Model
     protected $casts = [
         'content' => 'array',
         'cache' => 'bool',
+        'state' => PageState::class
     ];
     protected Collection $sharedContent;
     protected array $sharedContentCache = [];
