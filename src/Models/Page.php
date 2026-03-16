@@ -82,7 +82,7 @@ class Page extends Model
     {
         if (!isset($this->contentAccessor)) {
             $fields = $this->getPageFields();
-            $this->contentAccessor = new ContentAccessor($fields, $this->content);
+            $this->contentAccessor = new ContentAccessor($fields, $this->content ?? []);
         }
         return $this->contentAccessor;
     }
@@ -93,7 +93,7 @@ class Page extends Model
      */
     public function hasAnyContent(array $titles): bool
     {
-        return $this->getContentAccessor()->hasAny($title);
+        return $this->getContentAccessor()->hasAny($titles);
     }
 
     public function hasContent(string|array $title): bool
