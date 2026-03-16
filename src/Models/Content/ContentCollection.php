@@ -5,7 +5,7 @@ namespace Alexeyplodenko\Sitecode\Models\Content;
 use Alexeyplodenko\Sitecode\Models\Content\AbstractContent;
 use Alexeyplodenko\Sitecode\Services\ContentAccessor;
 
-class ContentCollection implements \Iterator
+class ContentCollection implements \Iterator, \Countable, \ArrayAccess
 {
     protected int $pointer = 0;
     protected array $plainContentItems = [];
@@ -19,27 +19,55 @@ class ContentCollection implements \Iterator
         $this->makeDirectAccessItems();
     }
 
-    public function current()
+    public function count(): int
+    {
+        return count($this->items);
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): ContentCollection|null|AbstractContent
+    {
+        return $this->items[$offset] ?? null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    public function offsetUnset(mixed $offset): void {
+        unset($this->items[$offset]);
+    }
+
+    public function current(): AbstractContent|ContentCollection
     {
         return $this->items[$this->pointer];
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->pointer;
     }
 
-    public function next()
+    public function next(): void
     {
         $this->pointer++;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->pointer = 0;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->items[$this->pointer]);
     }
@@ -78,12 +106,12 @@ class ContentCollection implements \Iterator
         return $this->get($title);
     }
 
-    public function getContentPlain()
+    public function getContentPlain(): array
     {
         return $this->plainContentItems;
     }
 
-    protected function makeDirectAccessItems()
+    protected function makeDirectAccessItems(): void
     {
         foreach ($this->items as $itemTitle => &$item) {
             if ($item instanceof ContentCollection) {
