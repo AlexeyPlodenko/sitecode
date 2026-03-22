@@ -6,7 +6,7 @@ class TextContent extends AbstractContent
 {
     public function getContent(): string
     {
-        return htmlspecialchars($this->content, ENT_QUOTES);
+        return $this->content;
     }
 
     public function raw(): string
