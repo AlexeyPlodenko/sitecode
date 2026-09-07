@@ -30,7 +30,7 @@ function sitecodeViewFromUrl(string $url, array $data = []): ViewFactory|ViewCon
 {
     $pages = app(PagesRepository::class);
     $page = $pages->findByUrl($url);
-    if (!$page) {
+    if (!$page || !$page->isEnabled()) {
         abort(404);
     }
 

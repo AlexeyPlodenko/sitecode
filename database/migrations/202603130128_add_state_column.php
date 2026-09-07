@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pages', function (Blueprint $table) {
-            $table->unsignedTinyInteger('state')->default(PageState::Disabled->value)->after('cache')->index();
+            $table->unsignedTinyInteger('state')->default(PageState::Enabled->value)->after('cache')->index();
         });
     }
 

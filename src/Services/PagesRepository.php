@@ -21,6 +21,13 @@ class PagesRepository extends BaseRepository
         return $this->findWhere(['url' => $url])->first();
     }
 
+    public function findEnabledByUrl(string $url): ?Page
+    {
+        $page = $this->findByUrl($url);
+
+        return ($page && $page->isEnabled()) ? $page : null;
+    }
+
     public function findByRequestPath(Request $request): ?Page
     {
         $url = '/'. trim($request->path(), '/');

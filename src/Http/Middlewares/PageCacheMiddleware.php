@@ -27,7 +27,7 @@ class PageCacheMiddleware
         /** @var PagesRepository $pagesRepository */
         $pagesRepository = app(PagesRepository::class);
         $page = $pagesRepository->findByRequestPath($request);
-        if (!$page || !$page->cache) {
+        if (!$page || !$page->isEnabled() || !$page->cache) {
             return $next($request);
         }
 
@@ -61,9 +61,13 @@ class PageCacheMiddleware
         if ($response->isSuccessful()) {
             // ensure the directories exist
             $dirPath = dirname($filePath);
-            $isDirCreated = @mkdir($dirPath, 0755, true);
+            if (!is_dir($dirPath)) {
+                $oldUmask = umask(0);
+                @mkdir($dirPath, 0777, true);
+                umask($oldUmask);
+            }
 
-            if (!$isDirCreated) {
+            if (!is_dir($dirPath)) {
                 $cachePath = $pagesCache->getCachePath();
                 if (!file_exists($cachePath)) {
                     throw new RuntimeException("Cache directory \"$cachePath\" does not exist.");
@@ -78,6 +82,7 @@ class PageCacheMiddleware
 
             // write cached data
             file_put_contents($filePath, $response->getContent());
+            @chmod($filePath, 0666);
         }
 
         return $response;

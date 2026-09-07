@@ -2,6 +2,7 @@
 
 namespace Alexeyplodenko\Sitecode\Filament\Resources\Pages\Tables;
 
+use Alexeyplodenko\Sitecode\Enums\PageState;
 use Alexeyplodenko\Sitecode\Filament\Actions\ContentEditAction;
 use Alexeyplodenko\Sitecode\Filament\Resources\Pages\PagesResource;
 use Alexeyplodenko\Sitecode\Models\Page;
@@ -13,6 +14,8 @@ use Filament\Actions\Action as TableAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
 
@@ -27,10 +30,28 @@ class PagesTable
                     ->url(fn (Page $record): string => PagesResource::getUrl('content', ['record' => $record]))
                     ->openUrlInNewTab(false),
                 TextColumn::make('url')->label('URL'),
+                ToggleColumn::make('state')
+                    ->label('Enabled')
+                    ->alignCenter()
+                    ->sortable()
+                    ->getStateUsing(fn (Page $record): bool => $record->isEnabled())
+                    ->updateStateUsing(function (Page $record, bool $state): PageState {
+                        $record->state = $state ? PageState::Enabled : PageState::Disabled;
+                        $record->save();
+                        if ($record->isDisabled()) {
+                            $record->invalidateCache();
+                        }
+                        return $record->state;
+                    }),
                 IconColumn::make('cache')->label('Cache')->boolean()->alignCenter(),
             ])
             ->filters([
-                //
+                SelectFilter::make('state')
+                    ->label('Status')
+                    ->options([
+                        PageState::Enabled->value => 'Enabled',
+                        PageState::Disabled->value => 'Disabled',
+                    ]),
             ])
             ->recordUrl(fn (Page $record): string => PagesResource::getUrl('content', ['record' => $record]))
             ->recordActions([
@@ -47,6 +68,17 @@ class PagesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('enable_pages')
+                        ->label('Enable Pages')
+                        ->icon(Heroicon::CheckCircle)
+                        ->action(fn (Collection $records) => $records->toQuery()->update(['state' => PageState::Enabled->value])),
+                    BulkAction::make('disable_pages')
+                        ->label('Disable Pages')
+                        ->icon(Heroicon::XCircle)
+                        ->action(fn (Collection $records) => $records->each(function (Page $record): void {
+                            $record->update(['state' => PageState::Disabled]);
+                            $record->invalidateCache();
+                        })),
                     BulkAction::make('enable_cache')
                         ->label('Enable Cache')
                         ->icon(Heroicon::CheckCircle)

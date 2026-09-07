@@ -2,6 +2,7 @@
 
 namespace Alexeyplodenko\Sitecode\Filament\Resources\Pages\Schemas;
 
+use Alexeyplodenko\Sitecode\Enums\PageState;
 use Alexeyplodenko\Sitecode\Filament\Resources\Pages\PagesResource;
 use Alexeyplodenko\Sitecode\Models\Page;
 use Alexeyplodenko\Sitecode\Services\Views;
@@ -63,6 +64,11 @@ class PagesForm
                 Group::make()
                     ->schema([
                         Select::make('view')->options($viewsForSelect)->required(),
+                        Checkbox::make('state')
+                            ->label('Enabled')
+                            ->default(true)
+                            ->formatStateUsing(fn ($state): bool => $state === PageState::Enabled || $state === 1 || $state === true)
+                            ->dehydrateStateUsing(fn ($state): PageState => $state ? PageState::Enabled : PageState::Disabled),
                         Checkbox::make('cache'),
                         TextEntry::make('is_cached')
                             ->label('Cache Status')

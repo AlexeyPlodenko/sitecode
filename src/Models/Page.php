@@ -41,7 +41,7 @@ use Alexeyplodenko\Sitecode\Enums\PageState;
 class Page extends Model
 {
     /** @var string[] */
-    protected array $fields = ['id', 'url', 'title', 'view', 'content', 'created_at', 'updated_at'];
+    protected array $fields = ['id', 'url', 'title', 'view', 'content', 'cache', 'state', 'created_at', 'updated_at'];
 
     /** var string[] */
     protected $fillable = [
@@ -68,6 +68,19 @@ class Page extends Model
 
     /** @var string[] */
     protected array $fieldsLookup;
+
+    protected static function booted(): void
+    {
+        static::saved(function (Page $page): void {
+            if ($page->isDisabled()) {
+                $page->invalidateCache();
+            }
+        });
+
+        static::deleted(function (Page $page): void {
+            $page->invalidateCache();
+        });
+    }
 
     public function hasField(string $fieldName): bool
     {
@@ -145,11 +158,49 @@ class Page extends Model
 
     public function invalidateCache(?string $filePath = null): bool
     {
-        if (!$filePath) {
-            $filePath = app(PagesCache::class)->getFilePathFromPage($this);
+        /** @var PagesCache $pagesCache */
+        $pagesCache = app(PagesCache::class);
+
+        if ($filePath) {
+            return $this->deleteCacheFile($filePath, $pagesCache);
         }
 
-        return @unlink($filePath);
+        $deleted = false;
+
+        $currentPath = $pagesCache->getFilePathFromPage($this);
+        if ($currentPath && $this->deleteCacheFile($currentPath, $pagesCache)) {
+            $deleted = true;
+        }
+
+        $originalUrl = $this->getOriginal('url');
+        if ($originalUrl && $originalUrl !== $this->url) {
+            $oldPath = $pagesCache->getFilePathFromPageUrl($originalUrl);
+            if ($oldPath && $this->deleteCacheFile($oldPath, $pagesCache)) {
+                $deleted = true;
+            }
+        }
+
+        return $deleted;
+    }
+
+    protected function deleteCacheFile(string $filePath, PagesCache $pagesCache): bool
+    {
+        if (!is_file($filePath)) {
+            return false;
+        }
+
+        $result = @unlink($filePath);
+
+        $dir = dirname($filePath);
+        $baseCacheDir = rtrim(str_replace('\\', '/', $pagesCache->getCachePath()), '/');
+        while ($dir && str_replace('\\', '/', $dir) !== $baseCacheDir && is_dir($dir)) {
+            if (!@rmdir($dir)) {
+                break;
+            }
+            $dir = dirname($dir);
+        }
+
+        return $result;
     }
 
     public function isCached(?string $filePath = null): bool
@@ -247,5 +298,39 @@ class Page extends Model
     protected function normalizePath(string $path): string
     {
         return rtrim(str_replace('\\', '/', $path), '/');
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->state === PageState::Enabled;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->state === PageState::Disabled;
+    }
+
+    public function enable(): static
+    {
+        $this->state = PageState::Enabled;
+
+        return $this;
+    }
+
+    public function disable(): static
+    {
+        $this->state = PageState::Disabled;
+
+        return $this;
+    }
+
+    public function scopeEnabled(Builder $query): Builder
+    {
+        return $query->where('state', PageState::Enabled);
+    }
+
+    public function scopeDisabled(Builder $query): Builder
+    {
+        return $query->where('state', PageState::Disabled);
     }
 }

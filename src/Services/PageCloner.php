@@ -41,6 +41,7 @@ class PageCloner
             $copy->title = $this->makeUniqueTitle($source->title);
             $copy->view = $source->view;
             $copy->cache = $source->cache;
+            $copy->state = $source->state;
             $copy->content = $newContent;
             $copy->save();
 

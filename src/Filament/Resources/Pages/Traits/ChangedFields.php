@@ -35,6 +35,8 @@ trait ChangedFields
     protected function normalizeComparisonData(mixed $item): string|int|null
     {
         if (!isset($item)) return null;
+        if ($item instanceof \BackedEnum) return (string) $item->value;
+        if ($item instanceof \UnitEnum) return $item->name;
         if (is_bool($item)) return $item ? 1 : 0;
         if (is_numeric($item)) return (string) +$item;
 
