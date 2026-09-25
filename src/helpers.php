@@ -26,6 +26,12 @@ function appHost(): ?string
     return parse_url(config('app.url'), PHP_URL_HOST);
 }
 
+function adminHost(): ?string
+{
+    $url = config('sitecode.admin.url') ?: config('admin.url');
+    return $url ? parse_url($url, PHP_URL_HOST) : null;
+}
+
 function sitecodeViewFromUrl(string $url, array $data = []): ViewFactory|ViewContract
 {
     $pages = app(PagesRepository::class);

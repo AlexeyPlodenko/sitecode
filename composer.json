@@ -28,6 +28,7 @@
         "php": "^8.2",
         "filament/filament": "^4|^5",
         "prettus/l5-repository": "^3",
+        "henrik9999/string-similarity": "^1.0",
         "ext-mbstring": "*"
     }
 }

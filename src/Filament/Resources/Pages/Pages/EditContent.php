@@ -12,6 +12,7 @@ use Alexeyplodenko\Sitecode\Models\PageField;
 use Alexeyplodenko\Sitecode\Models\Page;
 use Alexeyplodenko\Sitecode\Models\PageFields;
 use Alexeyplodenko\Sitecode\Models\SharedContent;
+use Alexeyplodenko\Sitecode\Services\PagesCache;
 use Config;
 use DB;
 use Filament\Actions\DeleteAction;
@@ -278,6 +279,14 @@ class EditContent extends EditRecord
         $changed = $this->getChangedFields($oldData, $newData);
         if ($changed) {
             $this->record->invalidateCache();
+
+            $changedSharedFields = array_intersect_key($this->sharedContent, $changed);
+            if (!empty($changedSharedFields)) {
+                app(PagesCache::class)->invalidatePagesUsingSharedContent(
+                    array_keys($changedSharedFields),
+                    $this->record->id
+                );
+            }
         }
     }
 }

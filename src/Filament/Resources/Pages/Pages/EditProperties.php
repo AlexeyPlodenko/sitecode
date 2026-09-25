@@ -49,7 +49,7 @@ class EditProperties extends EditRecord
 
         $changed = $this->getChangedFields($oldData, $newData);
 
-        if (in_array('url', $changed) || in_array('cache', $changed) || in_array('state', $changed) || $this->record->isDisabled()) {
+        if (in_array('url', $changed) || in_array('cache', $changed) || in_array('state', $changed) || in_array('view', $changed) || $this->record->isDisabled()) {
             if (!empty($oldData['url'])) {
                 $filePath = app(PagesCache::class)->getFilePathFromPageUrl($oldData['url']);
                 if ($filePath) {
