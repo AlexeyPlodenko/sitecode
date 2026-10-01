@@ -91,7 +91,9 @@ class PagesTable
                         ->label('Cache Pages')
                         ->icon(Heroicon::CheckCircle)
                         ->action(fn (Collection $records) => $records->each(function (Page $record) {
-                            $record->cache();
+                            if ($record->isCacheable()) {
+                                $record->cache();
+                            }
                         })),
                     BulkAction::make('clear_all_cache')
                         ->label('Clear Pages Cache')

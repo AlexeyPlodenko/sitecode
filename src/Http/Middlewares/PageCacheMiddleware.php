@@ -27,7 +27,7 @@ class PageCacheMiddleware
         /** @var PagesRepository $pagesRepository */
         $pagesRepository = app(PagesRepository::class);
         $page = $pagesRepository->findByRequestPath($request);
-        if (!$page || !$page->isEnabled() || !$page->cache) {
+        if (!$page || !$page->isEnabled() || !$page->isCacheable()) {
             return $next($request);
         }
 

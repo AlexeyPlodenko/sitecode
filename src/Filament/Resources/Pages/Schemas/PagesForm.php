@@ -69,7 +69,11 @@ class PagesForm
                             ->default(true)
                             ->formatStateUsing(fn ($state): bool => $state === PageState::Enabled || $state === 1 || $state === true)
                             ->dehydrateStateUsing(fn ($state): PageState => $state ? PageState::Enabled : PageState::Disabled),
-                        Checkbox::make('cache'),
+                        Checkbox::make('cache')
+                            ->disabled(fn (?Page $record): bool => (bool) $record?->isCacheExcluded())
+                            ->helperText(fn (?Page $record): ?string => $record?->isCacheExcluded()
+                                ? 'Caching is disabled via configuration (SITECODE_CACHE_EXCLUDED_URLS).'
+                                : null),
                         TextEntry::make('is_cached')
                             ->label('Cache Status')
                             ->hint('The page is cached when first accessed on the website.')
@@ -81,6 +85,10 @@ class PagesForm
                                     return null;
                                 }
 
+                                if ($record->isCacheExcluded()) {
+                                    return new HtmlString('<span style="color: #dc3545; font-weight: 500;">Excluded from cache via configuration</span>');
+                                }
+
                                 $msg = $record->isCached()
                                     ? 'Cached. <a href="'. PagesResource::getUrl('clear-cache', ['record' => $record]) .'" style="text-decoration: underline;">Clear now</a>'
                                     : 'Not cached. <a href="'. PagesResource::getUrl('cache', ['record' => $record]) .'" style="text-decoration: underline;">Cache now</a>';
@@ -88,7 +96,7 @@ class PagesForm
                                 return new HtmlString($msg);
                             })
                             ->hidden(function (?Page $record): bool {
-                                return !$record?->cache;
+                                return !$record?->cache && !$record?->isCacheExcluded();
                             })
                     ])
                     ->columns(1)

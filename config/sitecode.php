@@ -14,4 +14,9 @@ return [
         'prefix' => '',
     ],
     'views' => null,
+    'cache' => [
+        'excluded_urls' => array_values(array_filter(
+            array_map('trim', explode(',', env('SITECODE_CACHE_EXCLUDED_URLS', '')))
+        )),
+    ],
 ];

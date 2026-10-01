@@ -203,8 +203,36 @@ class Page extends Model
         return $result;
     }
 
+    public function isCacheExcluded(): bool
+    {
+        $excluded = config('sitecode.cache.excluded_urls', []);
+
+        if (empty($excluded)) {
+            return false;
+        }
+
+        $url = '/' . trim($this->url, '/');
+        foreach ($excluded as $pattern) {
+            $normalizedPattern = '/' . trim($pattern, '/');
+            if ($url === $normalizedPattern) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isCacheable(): bool
+    {
+        return (bool) $this->cache && !$this->isCacheExcluded();
+    }
+
     public function isCached(?string $filePath = null): bool
     {
+        if ($this->isCacheExcluded()) {
+            return false;
+        }
+
         if (!$filePath) {
             $filePath = app(PagesCache::class)->getFilePathFromPage($this);
         }
@@ -217,7 +245,7 @@ class Page extends Model
      */
     public function cache(): true
     {
-        if (!$this->cache) {
+        if (!$this->isCacheable()) {
             throw new CacheDisabled();
         }
 
