@@ -22,6 +22,7 @@ class PageField
     protected FilamentField $filamentComponent;
     protected bool $isShared;
     protected string $hint;
+    protected \Illuminate\Contracts\Support\Htmlable|string|null $helperText = null;
     protected ?string $label = null;
 
     public function __construct(protected string $title, protected ?PageFields $parent = null)
@@ -54,6 +55,18 @@ class PageField
     public function setHint(string $hint): static
     {
         $this->hint = $hint;
+
+        return $this;
+    }
+
+    public function getHelperText(): \Illuminate\Contracts\Support\Htmlable|string|null
+    {
+        return $this->helperText;
+    }
+
+    public function setHelperText(\Illuminate\Contracts\Support\Htmlable|string|null $helperText): static
+    {
+        $this->helperText = $helperText;
 
         return $this;
     }
@@ -139,6 +152,10 @@ class PageField
 
             if (isset($this->hint)) {
                 $this->filamentComponent->hint($this->hint);
+            }
+
+            if (isset($this->helperText)) {
+                $this->filamentComponent->helperText($this->helperText);
             }
 
             $label = $this->getLabel() ?? $this->getTitle();
